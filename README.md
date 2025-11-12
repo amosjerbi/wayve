@@ -3,6 +3,10 @@
 **Your personal music detection companion** – automatically identify, track, and organize songs playing around you.
 
 ---
+Join as beta tester here:
+https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT2XUx1bBINA/viewform
+
+---
 
 ## What is Wayve?
 
