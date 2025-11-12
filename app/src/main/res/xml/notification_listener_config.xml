@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notification-listener xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Listen to all notifications to detect Now Playing -->
+    <service-name>com.wayve.app.service.NowPlayingMonitorService</service-name>
+</notification-listener>
+
