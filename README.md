@@ -3,6 +3,15 @@
 **Your personal music detection companion** – automatically identify, track, and organize songs playing around you.
 
 ---
+
+### Main Flow
+![Wayve Main Flow](Assets/main_flow.png)
+
+### Themes
+![Wayve Themes](Assets/themes.png)
+
+---
+
 Join as beta tester here:
 https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT2XUx1bBINA/viewform
 
@@ -41,16 +50,6 @@ Wayve is an Android music detection app that helps you build and manage your mus
 - OAuth 2.0 with PKCE (secure authentication)
 - Export library to Spotify playlists
 - One-click playlist creation
-
----
-
-## 🖼️ App Screens
-
-### Main Flow
-![Wayve Main Flow](Assets/main_flow.png)
-
-### Themes
-![Wayve Themes](Assets/themes.png)
 
 ---
 
