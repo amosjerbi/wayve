@@ -4,16 +4,16 @@
 
 ---
 
+Join as beta tester here:
+https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT2XUx1bBINA/viewform
+
+---
+
 ### Main Flow
 ![Wayve Main Flow](Assets/main_flow.png)
 
 ### Themes
 ![Wayve Themes](Assets/themes.png)
-
----
-
-Join as beta tester here:
-https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT2XUx1bBINA/viewform
 
 ---
 
