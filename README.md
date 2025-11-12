@@ -46,9 +46,11 @@ Wayve is an Android music detection app that helps you build and manage your mus
 
 ## 🖼️ App Screens
 
-| Library | Analytics | Settings |
-|---------|-----------|----------|
-| Browse your detected songs with album art | View stats and most played tracks | Configure Shazam API & Spotify |
+### Main Flow
+![Wayve Main Flow](Assets/main_flow.png)
+
+### Themes
+![Wayve Themes](Assets/themes.png)
 
 ---
 
