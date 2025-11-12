@@ -2,8 +2,6 @@
   <img src="Assets/logo.png" alt="Wayve Logo" width="200"/>
 </p>
 
-# Wayve
-
 ## What is Wayve?
 
 Wayve is an Android music detection app that helps you build and manage your music library by capturing songs from multiple sources. Never lose track of that song you heard again.
@@ -11,7 +9,6 @@ Wayve is an Android music detection app that helps you build and manage your mus
 Join as beta tester here:
 https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT2XUx1bBINA/viewform
 
----
 
 ### Main Flow
 ![Wayve Main Flow](Assets/main_flow.png)
@@ -19,7 +16,6 @@ https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT
 ### Themes
 ![Wayve Themes](Assets/themes.png)
 
----
 
 ## ✨ Features
 
