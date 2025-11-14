@@ -24,10 +24,12 @@ class SpotifyAuthManager(private val context: Context) {
     companion object {
         private const val REDIRECT_URI = "wayve://spotify-callback"
         
-        // Scopes needed to create playlists
+        // Scopes needed to create and read playlists
         private val SCOPES = arrayOf(
             "playlist-modify-public",
-            "playlist-modify-private"
+            "playlist-modify-private",
+            "playlist-read-private",
+            "playlist-read-collaborative"
         )
         
         private const val PREF_ACCESS_TOKEN = "access_token"

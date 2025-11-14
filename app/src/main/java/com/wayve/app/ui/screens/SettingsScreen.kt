@@ -32,8 +32,12 @@ import com.wayve.app.service.NowPlayingAccessibilityService
 import com.wayve.app.service.NowPlayingCaptureService
 import com.wayve.app.ui.dialogs.ShazamSettingsDialog
 import com.wayve.app.ui.dialogs.SpotifySettingsDialog
+import com.wayve.app.ui.dialogs.SpotifyImportDialog
+import com.wayve.app.ui.dialogs.YouTubeSettingsDialog
+import com.wayve.app.ui.dialogs.YouTubeImportDialog
 import com.wayve.app.network.SpotifyAuthManager
 import com.wayve.app.network.SpotifyPlaylistManager
+import com.wayve.app.network.YouTubePlaylistImporter
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationResponse
 import kotlinx.serialization.json.Json
@@ -45,6 +49,9 @@ fun SettingsScreen(viewModel: MainViewModel) {
     val sharedPrefs = remember { context.getSharedPreferences("wayve_prefs", android.content.Context.MODE_PRIVATE) }
     var showShazamSettings by remember { mutableStateOf(false) }
     var showSpotifySettings by remember { mutableStateOf(false) }
+    var showSpotifyImport by remember { mutableStateOf(false) }
+    var showYouTubeSettings by remember { mutableStateOf(false) }
+    var showYouTubeImport by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }
     
     // Password visibility toggle
@@ -178,36 +185,6 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 }
             }
             
-            // Shazam Section
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Shazam",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                    
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceBright
-                        ),
-                        elevation = CardDefaults.cardElevation(0.dp)
-                    ) {
-                        Column {
-                            SettingsItem(
-                                title = "Shazam API Settings",
-                                trailingIconRes = R.drawable.shazam_logo,
-                                onClick = { showShazamSettings = true }
-                            )
-                        }
-                    }
-                }
-            }
-            
             // Spotify Section
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -292,7 +269,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                             )
                             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer, thickness = 1.dp)
                             SettingsItem(
-                                title = "Create Spotify Playlist",
+                                title = "Create Playlist from library",
                                 subtitle = when {
                                     isCreatingPlaylist -> playlistProgress
                                     else -> null
@@ -382,6 +359,90 @@ fun SettingsScreen(viewModel: MainViewModel) {
                                     }
                                 }
                             )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer, thickness = 1.dp)
+                            SettingsItem(
+                                title = "Import Spotify playlists",
+                                subtitle = null,
+                                onClick = {
+                                    if (!isSpotifySignedIn) {
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            "Please connect to Spotify first",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@SettingsItem
+                                    }
+                                    
+                                    showSpotifyImport = true
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // YouTube Section
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "YouTube",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceBright
+                        ),
+                        elevation = CardDefaults.cardElevation(0.dp)
+                    ) {
+                        Column {
+                            SettingsItem(
+                                title = "YouTube API Settings",
+                                subtitle = null,
+                                trailingIconRes = R.drawable.youtube_logo,
+                                onClick = { showYouTubeSettings = true }
+                            )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer, thickness = 1.dp)
+                            SettingsItem(
+                                title = "Import YouTube Playlist",
+                                subtitle = null,
+                                onClick = { showYouTubeImport = true }
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Shazam Section
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Shazam",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceBright
+                        ),
+                        elevation = CardDefaults.cardElevation(0.dp)
+                    ) {
+                        Column {
+                            SettingsItem(
+                                title = "Shazam API Settings",
+                                trailingIconRes = R.drawable.shazam_logo,
+                                onClick = { showShazamSettings = true }
+                            )
                         }
                     }
                 }
@@ -462,6 +523,63 @@ fun SettingsScreen(viewModel: MainViewModel) {
             hidePasswords = hidePasswords,
             onDismiss = { showSpotifySettings = false }
         )
+    }
+    
+    // Spotify Import Dialog
+    if (showSpotifyImport) {
+        val playlistManager = remember { SpotifyPlaylistManager(context, spotifyAuthManager) }
+        SpotifyImportDialog(
+            context = context,
+            playlistManager = playlistManager,
+            onDismiss = { showSpotifyImport = false },
+            onImportComplete = { count ->
+                android.widget.Toast.makeText(
+                    context,
+                    "✅ Successfully imported $count tracks!",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            }
+        )
+    }
+    
+    // YouTube Settings Dialog
+    if (showYouTubeSettings) {
+        YouTubeSettingsDialog(
+            sharedPrefs = sharedPrefs,
+            hidePasswords = hidePasswords,
+            onDismiss = { showYouTubeSettings = false }
+        )
+    }
+    
+    // YouTube Import Dialog
+    if (showYouTubeImport) {
+        val youtubeImporter = remember { YouTubePlaylistImporter(context) }
+        
+        if (!youtubeImporter.isConfigured()) {
+            // Show error if not configured
+            LaunchedEffect(Unit) {
+                android.widget.Toast.makeText(
+                    context,
+                    "⚠️ Please configure YouTube API key first",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                showYouTubeImport = false
+                showYouTubeSettings = true
+            }
+        } else {
+            YouTubeImportDialog(
+                context = context,
+                importer = youtubeImporter,
+                onDismiss = { showYouTubeImport = false },
+                onImportComplete = { count ->
+                    android.widget.Toast.makeText(
+                        context,
+                        "✅ Successfully imported $count videos!",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        }
     }
     
     // Clear Confirmation Dialog

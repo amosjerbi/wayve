@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,32 +29,27 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun SpotifySettingsDialog(
+fun YouTubeSettingsDialog(
     sharedPrefs: SharedPreferences,
     hidePasswords: Boolean = true,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    var clientId by remember {
-        mutableStateOf(sharedPrefs.getString("spotify_client_id", "") ?: "")
-    }
-    
-    var clientSecret by remember {
-        mutableStateOf(sharedPrefs.getString("spotify_client_secret", "") ?: "")
+    var apiKey by remember {
+        mutableStateOf(sharedPrefs.getString("youtube_api_key", "") ?: "")
     }
     
     var isInstructionsExpanded by remember { mutableStateOf(false) }
-    val redirectUri = "wayve://spotify-callback"
 
     Dialog(
         onDismissRequest = onDismiss,
         properties = androidx.compose.ui.window.DialogProperties(
-            usePlatformDefaultWidth = false // Allow custom width
+            usePlatformDefaultWidth = false
         )
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.95f) // Use 95% of screen width
+                .fillMaxWidth(0.95f)
                 .wrapContentHeight()
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             shape = RoundedCornerShape(20.dp),
@@ -70,13 +64,13 @@ fun SpotifySettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Spotify API Settings",
+                    text = "YouTube API Settings",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 
-                // Collapsible help text (accordion)
+                // Collapsible help text
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -88,7 +82,6 @@ fun SpotifySettingsDialog(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Accordion header
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -107,18 +100,16 @@ fun SpotifySettingsDialog(
                             )
                         }
                         
-                        // Collapsible content
                         if (isInstructionsExpanded) {
                             Text(
-                                text = "1. Open Spotify Developer Dashboard and log in",
+                                text = "1. Go to Google Cloud Console",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             
-                            // Open Developer Dashboard Button (part of step 1)
                             Button(
                                 onClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://developer.spotify.com/dashboard"))
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://console.cloud.google.com/apis/credentials"))
                                     context.startActivity(intent)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
@@ -135,7 +126,7 @@ fun SpotifySettingsDialog(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Open Developer Dashboard",
+                                    text = "Open Google Cloud Console",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -144,100 +135,65 @@ fun SpotifySettingsDialog(
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             Text(
-                                text = "2. Click 'Create app' and fill in app details",
+                                text = "2. Create a new project (if you don't have one)",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "3. Select which APIs to use, tick Android",
+                                text = "3. Enable YouTube Data API v3",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "4. Add redirect URI: wayve://spotify-callback",
+                                text = "4. Go to Credentials → Create Credentials → API Key",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "5. Copy the API key and paste below",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             
-                            // Copy Redirect URI button
-                            Button(
-                                onClick = {
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("Redirect URI", redirectUri))
-                                    android.widget.Toast.makeText(context, "Copied: $redirectUri", android.widget.Toast.LENGTH_SHORT).show()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
                                 ),
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                                shape = RoundedCornerShape(8.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Copy URI",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                Column(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "💡 Free tier: 10,000 quota units/day",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Text(
+                                        text = "1 playlist import ≈ 1-50 units",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
                             }
-                            
-                            Spacer(modifier = Modifier.height(4.dp))
-                            
-                            Text(
-                                text = "5. Save the app. Copy paste Client ID & Client Secret to fields below",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }
                 
-                // Client ID
+                // API Key field
                 OutlinedTextField(
-                    value = clientId,
-                    onValueChange = { clientId = it },
-                    label = { Text("Client ID") },
+                    value = apiKey,
+                    onValueChange = { apiKey = it },
+                    label = { Text("YouTube API Key") },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = if (hidePasswords) PasswordVisualTransformation() else VisualTransformation.None,
                     trailingIcon = {
-                        if (clientId.isNotEmpty()) {
-                            IconButton(onClick = { clientId = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary
-                    ),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                
-                // Client Secret
-                OutlinedTextField(
-                    value = clientSecret,
-                    onValueChange = { clientSecret = it },
-                    label = { Text("Client Secret") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (hidePasswords) PasswordVisualTransformation() else VisualTransformation.None,
-                    trailingIcon = {
-                        if (clientSecret.isNotEmpty()) {
-                            IconButton(onClick = { clientSecret = "" }) {
+                        if (apiKey.isNotEmpty()) {
+                            IconButton(onClick = { apiKey = "" }) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Clear",
@@ -266,8 +222,7 @@ fun SpotifySettingsDialog(
                     Button(
                         onClick = {
                             sharedPrefs.edit()
-                                .putString("spotify_client_id", clientId.trim())
-                                .putString("spotify_client_secret", clientSecret.trim())
+                                .putString("youtube_api_key", apiKey.trim())
                                 .apply()
                             onDismiss()
                         },

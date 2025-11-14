@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Empty State Colors (Android 12+ Light Theme) - surfaceContainerHigh style -->
-    <color name="empty_state_primary">#E4E4E7</color>        <!-- High contrast light gray -->
-    <color name="empty_state_secondary">#D4D4D8</color>      <!-- Medium-high gray -->
-    <color name="empty_state_surface">#F4F4F5</color>        <!-- High contrast surface -->
-    <color name="empty_state_outline">#A1A1AA</color>        <!-- Stronger outline -->
+    <!-- Empty State Illustration Colors (Android 12+ Light Theme) -->
+    <!-- Using Material You dynamic colors that adapt to wallpaper -->
+    <color name="empty_state_illustration_bg">@android:color/system_accent1_100</color>      <!-- Light, adapts to palette -->
+    <color name="empty_state_illustration_primary">@android:color/system_accent1_300</color>  <!-- Subtle medium tone (less prominent) -->
+    <color name="empty_state_illustration_accent">@android:color/system_accent1_200</color>   <!-- Very subtle light tone -->
 </resources>

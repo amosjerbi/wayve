@@ -1,5 +1,6 @@
 package com.wayve.app.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,7 +42,7 @@ private fun surfaceVariantDarker(): Color {
 }
 
 @Composable
-fun BacklogScreen(viewModel: MainViewModel) {
+fun AnalyticsScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("wayve_prefs", android.content.Context.MODE_PRIVATE) }
     var nowPlayingData by remember { mutableStateOf<NowPlayingData?>(null) }
@@ -93,14 +94,13 @@ fun BacklogScreen(viewModel: MainViewModel) {
             ) {
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                Icon(
-                    painter = painterResource(id = R.drawable.analytics),
+                Image(
+                    painter = painterResource(id = R.drawable.emptystate3),
                     contentDescription = null,
-                    modifier = Modifier.size(120.dp),
-                    tint = surfaceVariantDarker()
+                    modifier = Modifier.size(180.dp)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 Text(
                     text = "Songs are missing",

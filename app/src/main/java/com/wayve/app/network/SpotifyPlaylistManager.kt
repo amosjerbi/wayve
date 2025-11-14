@@ -33,6 +33,23 @@ class SpotifyPlaylistManager(
         val error: String? = null
     )
     
+    data class SpotifyPlaylist(
+        val id: String,
+        val name: String,
+        val description: String,
+        val trackCount: Int,
+        val imageUrl: String?,
+        val owner: String
+    )
+    
+    data class SpotifyTrack(
+        val title: String,
+        val artist: String,
+        val album: String,
+        val albumArt: String?,
+        val uri: String
+    )
+    
     /**
      * Create a Spotify playlist from Wayve tracks
      */
@@ -240,6 +257,150 @@ class SpotifyPlaylistManager(
             }
         } catch (e: Exception) {
             android.util.Log.e("SpotifyPlaylist", "Error adding tracks", e)
+        }
+    }
+    
+    /**
+     * Get user's playlists
+     */
+    suspend fun getUserPlaylists(): List<SpotifyPlaylist> = withContext(Dispatchers.IO) {
+        val accessToken = authManager.getAccessToken()
+        if (accessToken == null) {
+            android.util.Log.e("SpotifyPlaylist", "Not signed in")
+            return@withContext emptyList()
+        }
+        
+        try {
+            val playlists = mutableListOf<SpotifyPlaylist>()
+            var nextUrl: String? = "https://api.spotify.com/v1/me/playlists?limit=50"
+            
+            while (nextUrl != null) {
+                val request = Request.Builder()
+                    .url(nextUrl)
+                    .header("Authorization", "Bearer $accessToken")
+                    .build()
+                
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val json = JSONObject(response.body?.string() ?: "")
+                        val items = json.getJSONArray("items")
+                        
+                        for (i in 0 until items.length()) {
+                            val item = items.getJSONObject(i)
+                            
+                            val images = item.getJSONArray("images")
+                            val imageUrl = if (images.length() > 0) {
+                                images.getJSONObject(0).getString("url")
+                            } else null
+                            
+                            val owner = item.getJSONObject("owner").getString("display_name")
+                            
+                            playlists.add(
+                                SpotifyPlaylist(
+                                    id = item.getString("id"),
+                                    name = item.getString("name"),
+                                    description = item.optString("description", ""),
+                                    trackCount = item.getJSONObject("tracks").getInt("total"),
+                                    imageUrl = imageUrl,
+                                    owner = owner
+                                )
+                            )
+                        }
+                        
+                        nextUrl = if (json.has("next") && !json.isNull("next")) json.getString("next") else null
+                    } else {
+                        android.util.Log.e("SpotifyPlaylist", "Failed to get playlists: ${response.code}")
+                        nextUrl = null
+                    }
+                }
+            }
+            
+            android.util.Log.d("SpotifyPlaylist", "Found ${playlists.size} playlists")
+            playlists
+            
+        } catch (e: Exception) {
+            android.util.Log.e("SpotifyPlaylist", "Error getting playlists", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Get tracks from a playlist
+     */
+    suspend fun getPlaylistTracks(playlistId: String): List<SpotifyTrack> = withContext(Dispatchers.IO) {
+        val accessToken = authManager.getAccessToken()
+        if (accessToken == null) {
+            android.util.Log.e("SpotifyPlaylist", "Not signed in")
+            return@withContext emptyList()
+        }
+        
+        try {
+            val tracks = mutableListOf<SpotifyTrack>()
+            var nextUrl: String? = "https://api.spotify.com/v1/playlists/$playlistId/tracks?limit=100"
+            
+            while (nextUrl != null) {
+                val request = Request.Builder()
+                    .url(nextUrl)
+                    .header("Authorization", "Bearer $accessToken")
+                    .build()
+                
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val json = JSONObject(response.body?.string() ?: "")
+                        val items = json.getJSONArray("items")
+                        
+                        for (i in 0 until items.length()) {
+                            val item = items.getJSONObject(i)
+                            val track = item.optJSONObject("track") ?: continue
+                            
+                            // Skip if track is null (can happen with deleted/unavailable tracks)
+                            if (track.isNull("id")) continue
+                            
+                            val trackName = track.getString("name")
+                            
+                            // Get artists
+                            val artists = track.getJSONArray("artists")
+                            val artistNames = mutableListOf<String>()
+                            for (j in 0 until artists.length()) {
+                                artistNames.add(artists.getJSONObject(j).getString("name"))
+                            }
+                            val artistString = artistNames.joinToString(", ")
+                            
+                            // Get album info
+                            val album = track.getJSONObject("album")
+                            val albumName = album.getString("name")
+                            
+                            // Get album art
+                            val images = album.getJSONArray("images")
+                            val albumArt = if (images.length() > 0) {
+                                images.getJSONObject(0).getString("url")
+                            } else null
+                            
+                            tracks.add(
+                                SpotifyTrack(
+                                    title = trackName,
+                                    artist = artistString,
+                                    album = albumName,
+                                    albumArt = albumArt,
+                                    uri = track.getString("uri")
+                                )
+                            )
+                        }
+                        
+                        nextUrl = if (json.has("next") && !json.isNull("next")) json.getString("next") else null
+                    } else {
+                        android.util.Log.e("SpotifyPlaylist", "Failed to get tracks: ${response.code}")
+                        nextUrl = null
+                    }
+                }
+            }
+            
+            android.util.Log.d("SpotifyPlaylist", "Found ${tracks.size} tracks in playlist")
+            tracks
+            
+        } catch (e: Exception) {
+            android.util.Log.e("SpotifyPlaylist", "Error getting playlist tracks", e)
+            emptyList()
         }
     }
 }

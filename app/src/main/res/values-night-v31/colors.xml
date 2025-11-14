@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Empty State Colors (Android 12+ Dark Theme) - surfaceContainerHigh style -->
-    <color name="empty_state_primary">#52525B</color>        <!-- High contrast dark gray -->
-    <color name="empty_state_secondary">#71717A</color>      <!-- Lighter high contrast gray -->
-    <color name="empty_state_surface">#3F3F46</color>        <!-- Elevated dark surface -->
-    <color name="empty_state_outline">#A1A1AA</color>        <!-- High visibility outline -->
+    <!-- Empty State Illustration Colors (Android 12+ Dark Theme) -->
+    <!-- Using Material You dynamic colors that adapt to wallpaper -->
+    <color name="empty_state_illustration_bg">@android:color/system_accent1_700</color>      <!-- Dark, adapts to palette -->
+    <color name="empty_state_illustration_primary">@android:color/system_accent1_400</color>  <!-- Muted medium tone (less prominent) -->
+    <color name="empty_state_illustration_accent">@android:color/system_accent1_300</color>   <!-- Subtle accent -->
 </resources>

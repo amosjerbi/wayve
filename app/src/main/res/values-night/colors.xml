@@ -6,6 +6,11 @@
     <color name="empty_state_surface">#3F3F46</color>        <!-- Elevated dark surface -->
     <color name="empty_state_outline">#A1A1AA</color>        <!-- High visibility outline -->
     
+    <!-- Empty State Illustration Colors (Dark Theme - Fallback for Android 11 and below) -->
+    <color name="empty_state_illustration_bg">#1A2942</color>      <!-- Dark navy background -->
+    <color name="empty_state_illustration_primary">#5A8FCC</color>  <!-- Muted blue waves (less prominent) -->
+    <color name="empty_state_illustration_accent">#7AA5D9</color>   <!-- Subtle light blue sparkles -->
+    
     <!-- Dark Theme Specific Colors -->
     <color name="dark_background">#0F0E11</color>
     <color name="dark_surface">#1C1B1F</color>

@@ -81,7 +81,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 import com.wayve.app.ui.screens.NowPlayingScreen
-import com.wayve.app.ui.screens.BacklogScreen
+import com.wayve.app.ui.screens.AnalyticsScreen
 import com.wayve.app.ui.screens.SettingsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -629,7 +629,7 @@ fun RomApp(viewModel: MainViewModel, downloader: Downloader) {
         ) {
             when (selectedTab) {
                 0 -> NowPlayingScreen(viewModel)
-                1 -> BacklogScreen(viewModel)
+                1 -> AnalyticsScreen(viewModel)
                 2 -> SettingsScreen(viewModel)
             }
         }

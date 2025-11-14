@@ -36,6 +36,11 @@
     <color name="empty_state_outline">#A1A1AA</color>        <!-- Stronger outline -->
     <color name="empty_state_gray">#71717A</color>           <!-- Darker gray for better contrast -->
     
+    <!-- Empty State Illustration Colors (Light Theme - Fallback for Android 11 and below) -->
+    <color name="empty_state_illustration_bg">#D5E3FF</color>      <!-- Light blue background -->
+    <color name="empty_state_illustration_primary">#6B9DD6</color>  <!-- Medium blue waves (less prominent) -->
+    <color name="empty_state_illustration_accent">#9ABDE8</color>   <!-- Light blue sparkles (subtle) -->
+    
     <!-- Material 3 Theme Colors -->
     <color name="vibrant_blue">#3B82F6</color>
     <color name="dark_blue">#1E3A8A</color>

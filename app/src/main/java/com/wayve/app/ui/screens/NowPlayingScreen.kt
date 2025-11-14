@@ -456,7 +456,7 @@ fun NowPlayingScreen(viewModel: MainViewModel) {
                             .clip(CircleShape)
                             .background(
                                 if (continuousMonitorEnabled) 
-                                    MaterialTheme.colorScheme.tertiaryContainer
+                                    MaterialTheme.colorScheme.onPrimaryContainer
                                 else 
                                     MaterialTheme.colorScheme.surfaceVariant
                             )
@@ -498,7 +498,7 @@ fun NowPlayingScreen(viewModel: MainViewModel) {
                             painter = painterResource(id = R.drawable.music),
                             contentDescription = if (continuousMonitorEnabled) "Mic ON" else "Mic OFF",
                             tint = if (continuousMonitorEnabled) 
-                                MaterialTheme.colorScheme.onTertiaryContainer
+                                MaterialTheme.colorScheme.primaryContainer
                             else 
                                 MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(28.dp)
@@ -543,7 +543,7 @@ fun NowPlayingScreen(viewModel: MainViewModel) {
                     shape = RoundedCornerShape(28.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceBright,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceBright,
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         unfocusedBorderColor = Color.Transparent,
                         focusedBorderColor = Color.Transparent,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -567,7 +567,7 @@ fun NowPlayingScreen(viewModel: MainViewModel) {
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.tertiaryContainer)
+                            .background(MaterialTheme.colorScheme.onPrimaryContainer)
                             .clickable {
                                 showShazamSettings = true
                             },
@@ -576,7 +576,7 @@ fun NowPlayingScreen(viewModel: MainViewModel) {
                         Icon(
                             painter = painterResource(id = R.drawable.music),
                             contentDescription = "Configure Shazam API",
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            tint = MaterialTheme.colorScheme.primaryContainer,
                             modifier = Modifier.size(56.dp)
                         )
                     }

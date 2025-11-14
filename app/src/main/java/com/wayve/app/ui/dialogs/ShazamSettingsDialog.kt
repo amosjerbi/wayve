@@ -240,8 +240,8 @@ fun ShazamSettingsDialog(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         ),
@@ -275,8 +275,8 @@ fun ShazamSettingsDialog(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         ),
@@ -309,8 +309,8 @@ fun ShazamSettingsDialog(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         ),
