@@ -1,0 +1,52 @@
+Primary Colors
+primary - Main brand color, used for primary actions
+onPrimary - Text/icons on primary color
+primaryContainer - Less prominent than primary
+onPrimaryContainer - Text/icons on primaryContainer
+
+Secondary Colors
+secondary - Secondary brand color, used for less prominent actions
+onSecondary - Text/icons on secondary color
+secondaryContainer - Less prominent than secondary (currently: light blue for focused fields)
+onSecondaryContainer - Text/icons on secondaryContainer
+
+
+Tertiary Colors
+tertiary - Tertiary brand color, used for contrasting accents
+onTertiary - Text/icons on tertiary color
+tertiaryContainer - Less prominent than tertiary (currently: used for unfocused fields)
+onTertiaryContainer - Text/icons on tertiaryContainer
+
+Error Colors
+error - Error states and alerts
+onError - Text/icons on error color
+errorContainer - Less prominent error backgrounds
+onErrorContainer - Text/icons on errorContainer
+
+Background & Surface
+background - Main app background
+onBackground - Text/icons on background
+surface - Component surfaces (cards, sheets, menus)
+onSurface - Text/icons on surface
+surfaceVariant - Alternative surface color with less emphasis
+onSurfaceVariant - Text/icons on surfaceVariant
+surfaceTint - Tint color for elevated surfaces
+surfaceBright - Brighter surface variant
+surfaceDim - Dimmer surface variant
+surfaceContainer - Container surfaces (currently: used for cards)
+surfaceContainerHigh - Higher emphasis container
+surfaceContainerHighest - Highest emphasis container
+surfaceContainerHigh - Higher emphasis container
+surfaceContainerHighest - Highest emphasis container
+surfaceContainerLow - Lower emphasis container
+surfaceContainerLowest - Lowest emphasis container
+
+Inverse Colors
+inverseSurface - Inverted surface color (for tooltips, snackbars)
+inverseOnSurface - Text/icons on inverseSurface
+inversePrimary - Inverted primary color
+
+Outline & Scrim
+outline - Border and divider lines
+outlineVariant - Lower emphasis borders
+scrim - Overlay for modals/dialogs
