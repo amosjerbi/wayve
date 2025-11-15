@@ -126,8 +126,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     ) {
                         Column {
                             SettingsItem(
-                                title = "Accessibility permission",
-                                subtitle = "Tap to Enable settings",
+                                title = "Enable Accessibility",
                                 badge = "1",
                                 onClick = {
                                     val intent = Intent(AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS)
@@ -137,7 +136,6 @@ fun SettingsScreen(viewModel: MainViewModel) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer, thickness = 1.dp)
                             SettingsItem(
                                 title = "Open Now Playing",
-                                subtitle = "Start capturing your data",
                                 badge = "2",
                                 onClick = {
                                     // Check if accessibility service is enabled
@@ -476,16 +474,10 @@ fun SettingsScreen(viewModel: MainViewModel) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Hide passwords and tokens",
+                                    text = "Hide passwords",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.height(0.dp))
-                                Text(
-                                    text = "Mask sensitive information in text fields",
-                                    fontSize = 13.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                 )
                             }
                             

@@ -7,9 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,7 +52,7 @@ fun YouTubeImportDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.85f),
+                .wrapContentHeight(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
@@ -62,50 +60,23 @@ fun YouTubeImportDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .wrapContentHeight()
                     .padding(24.dp)
             ) {
                 // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.VideoLibrary,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Text(
-                            text = "Import YouTube Playlist",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    
-                    if (!isImporting && !isLoading) {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = "Import YouTube Playlist",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 
                 // Content
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -291,167 +262,217 @@ fun YouTubeImportDialog(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 // Buttons
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (playlistInfo != null && !isImporting) {
-                        OutlinedButton(
+                        // Import button
+                        Button(
+                            onClick = {
+                                // Import playlist
+                                isImporting = true
+                                scope.launch {
+                                    try {
+                                        val playlistId = importer.extractPlaylistId(playlistUrl)
+                                        if (playlistId == null) {
+                                            error = "Invalid playlist URL"
+                                            isImporting = false
+                                            return@launch
+                                        }
+                                        
+                                        importProgress = "Loading videos..."
+                                        
+                                        val result = importer.importPlaylist(playlistId) { current, total ->
+                                            importProgress = "Loading $current/$total videos..."
+                                        }
+                                        
+                                        if (result.success && result.videos.isNotEmpty()) {
+                                            importProgress = "Importing ${result.videos.size} videos..."
+                                            
+                                            // Convert to NowPlayingTrack format
+                                            val tracks = result.videos.map { video ->
+                                                NowPlayingTrack(
+                                                    title = video.title,
+                                                    artist = video.channel,
+                                                    time = java.time.LocalTime.now().toString(),
+                                                    date = java.time.LocalDate.now().toString(),
+                                                    favorited = false,
+                                                    captured_on_page = null,
+                                                    albumArt = video.thumbnail
+                                                )
+                                            }
+                                            
+                                            // Load existing library
+                                            val sharedPrefs = context.getSharedPreferences("wayve_prefs", Context.MODE_PRIVATE)
+                                            val savedData = sharedPrefs.getString("nowplaying_data", null)
+                                            
+                                            val json = Json {
+                                                ignoreUnknownKeys = true
+                                                prettyPrint = false
+                                            }
+                                            
+                                            val currentData = if (savedData != null) {
+                                                json.decodeFromString<NowPlayingData>(savedData)
+                                            } else {
+                                                NowPlayingData(
+                                                    exported = Instant.now().toString(),
+                                                    source = "YouTube Import",
+                                                    device = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}",
+                                                    method = "YouTube Playlist Import",
+                                                    tracks = emptyList()
+                                                )
+                                            }
+                                            
+                                            // Merge tracks
+                                            val updatedTracks = tracks + currentData.tracks
+                                            val stats = NowPlayingParser.calculateStats(updatedTracks)
+                                            
+                                            val updatedData = currentData.copy(
+                                                tracks = updatedTracks,
+                                                statistics = stats
+                                            )
+                                            
+                                            // Save
+                                            val jsonString = json.encodeToString(
+                                                NowPlayingData.serializer(),
+                                                updatedData
+                                            )
+                                            sharedPrefs.edit().putString("nowplaying_data", jsonString).apply()
+                                            
+                                            android.util.Log.d("YouTubeImport", "✅ Imported ${tracks.size} videos")
+                                            
+                                            importProgress = "Imported ${tracks.size} videos!"
+                                            kotlinx.coroutines.delay(1000)
+                                            
+                                            onImportComplete(tracks.size)
+                                            onDismiss()
+                                        } else {
+                                            error = result.error ?: "No videos found"
+                                            isImporting = false
+                                        }
+                                        
+                                    } catch (e: Exception) {
+                                        android.util.Log.e("YouTubeImport", "Error importing", e)
+                                        error = e.message ?: "Import failed"
+                                        isImporting = false
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = !isImporting
+                        ) {
+                            Text(
+                                text = "IMPORT",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                        
+                        // Back button
+                        TextButton(
                             onClick = { 
                                 playlistInfo = null
                                 error = null
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
                         ) {
-                            Text("Back")
-                        }
-                    }
-                    
-                    Button(
-                        onClick = {
-                            when {
-                                playlistInfo != null -> {
-                                    // Import playlist
-                                    isImporting = true
-                                    scope.launch {
-                                        try {
-                                            val playlistId = importer.extractPlaylistId(playlistUrl)
-                                            if (playlistId == null) {
-                                                error = "Invalid playlist URL"
-                                                isImporting = false
-                                                return@launch
-                                            }
-                                            
-                                            importProgress = "Loading videos..."
-                                            
-                                            val result = importer.importPlaylist(playlistId) { current, total ->
-                                                importProgress = "Loading $current/$total videos..."
-                                            }
-                                            
-                                            if (result.success && result.videos.isNotEmpty()) {
-                                                importProgress = "Importing ${result.videos.size} videos..."
-                                                
-                                                // Convert to NowPlayingTrack format
-                                                val tracks = result.videos.map { video ->
-                                                    NowPlayingTrack(
-                                                        title = video.title,
-                                                        artist = video.channel,
-                                                        time = java.time.LocalTime.now().toString(),
-                                                        date = java.time.LocalDate.now().toString(),
-                                                        favorited = false,
-                                                        captured_on_page = null,
-                                                        albumArt = video.thumbnail
-                                                    )
-                                                }
-                                                
-                                                // Load existing library
-                                                val sharedPrefs = context.getSharedPreferences("wayve_prefs", Context.MODE_PRIVATE)
-                                                val savedData = sharedPrefs.getString("nowplaying_data", null)
-                                                
-                                                val json = Json {
-                                                    ignoreUnknownKeys = true
-                                                    prettyPrint = false
-                                                }
-                                                
-                                                val currentData = if (savedData != null) {
-                                                    json.decodeFromString<NowPlayingData>(savedData)
-                                                } else {
-                                                    NowPlayingData(
-                                                        exported = Instant.now().toString(),
-                                                        source = "YouTube Import",
-                                                        device = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}",
-                                                        method = "YouTube Playlist Import",
-                                                        tracks = emptyList()
-                                                    )
-                                                }
-                                                
-                                                // Merge tracks
-                                                val updatedTracks = tracks + currentData.tracks
-                                                val stats = NowPlayingParser.calculateStats(updatedTracks)
-                                                
-                                                val updatedData = currentData.copy(
-                                                    tracks = updatedTracks,
-                                                    statistics = stats
-                                                )
-                                                
-                                                // Save
-                                                val jsonString = json.encodeToString(
-                                                    NowPlayingData.serializer(),
-                                                    updatedData
-                                                )
-                                                sharedPrefs.edit().putString("nowplaying_data", jsonString).apply()
-                                                
-                                                android.util.Log.d("YouTubeImport", "✅ Imported ${tracks.size} videos")
-                                                
-                                                importProgress = "Imported ${tracks.size} videos!"
-                                                kotlinx.coroutines.delay(1000)
-                                                
-                                                onImportComplete(tracks.size)
-                                                onDismiss()
-                                            } else {
-                                                error = result.error ?: "No videos found"
-                                                isImporting = false
-                                            }
-                                            
-                                        } catch (e: Exception) {
-                                            android.util.Log.e("YouTubeImport", "Error importing", e)
-                                            error = e.message ?: "Import failed"
-                                            isImporting = false
-                                        }
-                                    }
-                                }
-                                else -> {
-                                    // Fetch playlist info
-                                    if (playlistUrl.isBlank()) {
-                                        error = "Please enter a playlist URL"
-                                        return@Button
-                                    }
-                                    
-                                    if (!importer.isConfigured()) {
-                                        error = "Please configure YouTube API key in settings first"
-                                        return@Button
-                                    }
-                                    
-                                    val playlistId = importer.extractPlaylistId(playlistUrl)
-                                    if (playlistId == null) {
-                                        error = "Invalid playlist URL or ID"
-                                        return@Button
-                                    }
-                                    
-                                    isLoading = true
-                                    error = null
-                                    
-                                    scope.launch {
-                                        try {
-                                            val info = importer.getPlaylistInfo(playlistId)
-                                            if (info != null) {
-                                                playlistInfo = info
-                                            } else {
-                                                error = "Playlist not found or is private"
-                                            }
-                                        } catch (e: Exception) {
-                                            error = e.message ?: "Failed to load playlist"
-                                        } finally {
-                                            isLoading = false
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        enabled = !isLoading && !isImporting
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
+                            Text(
+                                text = "BACK",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                        } else {
-                            Text(if (playlistInfo != null) "Import" else "Continue")
+                        }
+                    } else {
+                        // Continue button
+                        Button(
+                            onClick = {
+                                // Fetch playlist info
+                                if (playlistUrl.isBlank()) {
+                                    error = "Please enter a playlist URL"
+                                    return@Button
+                                }
+                                
+                                if (!importer.isConfigured()) {
+                                    error = "Please configure YouTube API key in settings first"
+                                    return@Button
+                                }
+                                
+                                val playlistId = importer.extractPlaylistId(playlistUrl)
+                                if (playlistId == null) {
+                                    error = "Invalid playlist URL or ID"
+                                    return@Button
+                                }
+                                
+                                isLoading = true
+                                error = null
+                                
+                                scope.launch {
+                                    try {
+                                        val info = importer.getPlaylistInfo(playlistId)
+                                        if (info != null) {
+                                            playlistInfo = info
+                                        } else {
+                                            error = "Playlist not found or is private"
+                                        }
+                                    } catch (e: Exception) {
+                                        error = e.message ?: "Failed to load playlist"
+                                    } finally {
+                                        isLoading = false
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = !isLoading && !isImporting
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = "CONTINUE",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        
+                        // Cancel button
+                        TextButton(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text(
+                                text = "CANCEL",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

@@ -46,6 +46,13 @@ https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT
 - OAuth 2.0 with PKCE (secure authentication)
 - Export library to Spotify playlists
 - One-click playlist creation
+- Import playlists directly from Spotify
+
+### 📺 **YouTube Playlist Import**
+- Import public YouTube playlists
+- Supports full URLs and playlist IDs
+- Batch import with progress tracking
+- Automatic metadata extraction
 
 ---
 
@@ -57,7 +64,8 @@ https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT
 - **APIs**: 
   - Shazam (via RapidAPI) for music recognition
   - iTunes Search API for album art backfill
-  - Spotify Web API for playlist creation
+  - Spotify Web API for playlist creation and import
+  - YouTube Data API v3 for playlist import
 - **Storage**: SharedPreferences + DataStore
 - **Dependencies**: OkHttp, Coil (image loading), Spotify Android Auth SDK
 
@@ -69,7 +77,8 @@ https://docs.google.com/forms/d/e/1FAIpQLSeJ6BW47heqKr9msmCuFhl6YEsOSjRJjatIZ6WT
 - Android Studio (latest version)
 - Android device/emulator running API 24+
 - **Shazam API Key** (free 500 requests/month from [RapidAPI](https://rapidapi.com/apidojo/api/shazam))
-- **Spotify Developer Account** (optional, for playlist export)
+- **YouTube API Key** (optional, for playlist import)
+- **Spotify Developer Account** (optional, for playlist export/import)
 
 ### Quick Start
 
@@ -83,6 +92,7 @@ cd wayve
 
 3. Configure APIs in the app:
    - **Shazam**: Settings → Shazam API Settings → Enter your RapidAPI key
+   - **YouTube**: Settings → YouTube Settings → Enter your API key
    - **Spotify**: Settings → Spotify Settings → Enter Client ID & Secret
 
 4. Build and run!
@@ -105,12 +115,20 @@ cd wayve
 4. Open Wayve → Settings → Spotify Settings
 5. Enter credentials and authenticate
 
+### YouTube Playlist Import (Optional)
+1. Create a project at [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable YouTube Data API v3
+3. Create an API key in Credentials
+4. Open Wayve → Settings → YouTube Settings
+5. Enter your API key and save
+
 ---
 
 ## 🎯 Use Cases
 
 - **Discover**: Identify songs at cafés, parties, or on the radio
 - **Track**: Build a history of all music you've encountered
+- **Import**: Bring in your playlists from Spotify and YouTube
 - **Organize**: Sort and search your music library
 - **Export**: Create Spotify playlists from your discoveries
 - **Analyze**: See your listening patterns and most detected songs
